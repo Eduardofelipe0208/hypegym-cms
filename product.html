@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producto | HYPE Sportswear</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header__container">
+            <a href="index.html" class="logo">HYPE<span class="text-neon">.</span></a>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li><a href="index.html" class="nav__link">Home</a></li>
+                    <li><a href="shop.html" class="nav__link">Catálogo</a></li>
+                    <li><a href="index.html#collections" class="nav__link">Colecciones</a></li>
+                </ul>
+            </nav>
+            <div class="header__actions">
+                <button class="icon-btn" id="cartToggle">
+                    <i class="ph ph-shopping-cart"></i>
+                    <span class="cart-badge" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <aside class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer__header">
+            <h3>TU PEDIDO <span class="text-neon">HYPE</span></h3>
+            <button class="close-btn" id="closeCart"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="cart-drawer__body" id="cartItems"></div>
+        <div class="cart-drawer__footer">
+            <div class="cart-summary">
+                <div class="cart-row total">
+                    <span>TOTAL</span>
+                    <span class="text-neon" id="cartTotal">$0.00</span>
+                </div>
+            </div>
+            <button class="btn btn--primary btn--full" id="checkoutBtn">
+                FINALIZAR PEDIDO POR WHATSAPP <i class="ph ph-whatsapp-logo"></i>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-product">
+        <div class="container" id="product-detail-container">
+            <p style="text-align:center; padding: 4rem; color: #666;">Cargando detalles del producto...</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__top">
+            <a href="#" class="logo">HYPE<span class="text-neon">.</span></a>
+            <p style="color: #666;">Estilo. Rendimiento. Actitud.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
