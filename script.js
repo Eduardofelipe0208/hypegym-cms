@@ -11,11 +11,11 @@ let currentBcvRate = CONFIG.manualRate; // Iniciamos con manual
 
 // --- BASE DE DATOS DE PRODUCTOS ---
 const PRODUCTS_DB = [
-    { id: "1", name: "HYPE Oversize Tee", price: 35.00, category: "street", image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1470&auto=format&fit=crop", badge: "BEST SELLER" },
+    { id: "1", name: "HYPE Oversize Tee", price: 35.00, category: "street", image: "img/1.webp", badge: "BEST SELLER" },
     { id: "2", name: "Short Performance Black", price: 30.00, category: "gym", image: "img/6.jpg", badge: null },
-    { id: "3", name: "HYPE Tech Hoodie", price: 65.00, category: "street", image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?q=80&w=1470&auto=format&fit=crop", badge: "NEW" },
-    { id: "4", name: "Pro Combat Leggings", price: 45.00, category: "gym", image: "https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=1382&auto=format&fit=crop", badge: null },
-    { id: "5", name: "HYPE Cap Black", price: 20.00, category: "accessories", image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=1336&auto=format&fit=crop", badge: null },
+    { id: "3", name: "HYPE Tech Hoodie", price: 65.00, category: "street", image: "img/3.jpg", badge: "NEW" },
+    { id: "4", name: "Pro Combat Leggings", price: 45.00, category: "gym", image: "img/4.jpg", badge: null },
+    { id: "5", name: "HYPE Cap Black", price: 20.00, category: "accessories", image: "img/5.jpg", badge: null },
     { id: "6", name: "Urban Joggers Grey", price: 55.00, category: "street", image: "img/7.jpg", badge: "SALE" }
 ];
 
