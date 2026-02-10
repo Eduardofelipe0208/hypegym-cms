@@ -1,18 +1,74 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="HYPE Sportswear - Ropa deportiva de alto rendimiento y estilo urbano.">
-    <title>HYPE Sportswear | Home</title>
-    
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="HYPE Sportswear - Ropa deportiva premium con estilo urbano. Envíos a toda Venezuela. Pago en Bs o USD.">
+    <meta name="keywords" content="ropa deportiva venezuela, streetwear, gym wear, moda urbana, HYPE">
+    <meta name="author" content="HYPE Sportswear">
+
+    <!-- Open Graph Meta Tags (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="HYPE Sportswear | Ropa Deportiva Premium">
+    <meta property="og:description"
+        content="Descubre nuestra colección de ropa deportiva y streetwear. Estilo y rendimiento en cada prenda. 🔥">
+    <meta property="og:image"
+        content="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1200&h=630&fit=crop">
+    <meta property="og:url" content="https://hypesportswear.com">
+    <meta property="og:site_name" content="HYPE Sportswear">
+    <meta property="og:locale" content="es_VE">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HYPE Sportswear | Ropa Deportiva Premium">
+    <meta name="twitter:description"
+        content="Descubre nuestra colección de ropa deportiva y streetwear. Estilo y rendimiento en cada prenda.">
+    <meta name="twitter:image"
+        content="https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1200&h=630&fit=crop">
+
+    <title>HYPE Sportswear | Ropa Deportiva Premium</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
+
+    <!-- 🔴 META PIXEL (FACEBOOK ADS) - Reemplaza YOUR_PIXEL_ID -->
+    <!-- <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', 'YOUR_PIXEL_ID');
+        fbq('track', 'PageView');
+    </script> -->
+
+    <!-- 🔴 GOOGLE ANALYTICS 4 - Reemplaza G-XXXXXXXXXX -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script> -->
 </head>
+
 <body>
 
     <header class="header">
@@ -21,7 +77,7 @@
             <nav class="nav">
                 <ul class="nav__list">
                     <li><a href="index.html" class="nav__link active">Home</a></li>
-                    <li><a href="shop.html" class="nav__link">Catálogo</a></li> 
+                    <li><a href="shop.html" class="nav__link">Catálogo</a></li>
                     <li><a href="#collections" class="nav__link">Colecciones</a></li>
                 </ul>
             </nav>
@@ -40,7 +96,7 @@
             <h3>TU PEDIDO <span class="text-neon">HYPE</span></h3>
             <button class="close-btn" id="closeCart"><i class="ph ph-x"></i></button>
         </div>
-        
+
         <div class="cart-drawer__body" id="cartItems">
             <div class="empty-state">
                 <i class="ph ph-shopping-bag"></i>
@@ -70,7 +126,8 @@
     <main>
         <section class="hero">
             <div class="hero__bg">
-                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop" alt="Entrenamiento HYPE">
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop"
+                    alt="Entrenamiento HYPE">
                 <div class="overlay"></div>
             </div>
             <div class="container hero__content">
@@ -89,16 +146,24 @@
                 <h2 class="section-title">COLECCIONES</h2>
                 <div class="grid-collections">
                     <div class="collection-card">
-                        <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1470&auto=format&fit=crop" alt="Gym">
-                        <div class="collection-content"><h3>GYM</h3></div>
+                        <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1470&auto=format&fit=crop"
+                            alt="Gym">
+                        <div class="collection-content">
+                            <h3>GYM</h3>
+                        </div>
                     </div>
                     <div class="collection-card">
                         <img src="img/4.jpg" alt="Street">
-                        <div class="collection-content"><h3>STREET</h3></div>
+                        <div class="collection-content">
+                            <h3>STREET</h3>
+                        </div>
                     </div>
                     <div class="collection-card">
-                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1470&auto=format&fit=crop" alt="Performance">
-                        <div class="collection-content"><h3>PERFORMANCE</h3></div>
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1470&auto=format&fit=crop"
+                            alt="Performance">
+                        <div class="collection-content">
+                            <h3>PERFORMANCE</h3>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,76 +172,9 @@
         <section class="section section--dark">
             <div class="container">
                 <h2 class="section-title">LO MÁS <span class="text-neon">VENDIDO</span></h2>
-                <div class="grid-products">
-                    <article class="product-card">
-                        <div class="product-image">
-                            <span class="badge">BEST SELLER</span>
-                            <a href="product.html?id=1">
-                                <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1470&auto=format&fit=crop" alt="Camiseta HYPE">
-                            </a>
-                        </div>
-                        <div class="product-info">
-                            <h4>HYPE Oversize Tee</h4>
-                            <p class="price">$35.00</p>
-                            <div class="product-controls">
-                                <select id="size-1" class="size-selector">
-                                    <option value="S">S</option>
-                                    <option value="M" selected>M</option>
-                                    <option value="L">L</option>
-                                </select>
-                                <button class="btn btn--primary btn--icon add-to-cart" data-id="1">
-                                    <i class="ph ph-plus"></i> AGREGAR
-                                </button>
-                            </div>
-                        </div>
-                    </article>
+                <!-- Productos renderizados dinámicamente vía JS -->
+                <div class="grid-products" id="featuredContainer"></div>
 
-                    <article class="product-card">
-                        <div class="product-image">
-                            <a href="product.html?id=2">
-                                <img src="https://images.unsplash.com/photo-1552364142-f06dd635a796?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Short Training">
-                            </a>
-                        </div>
-                        <div class="product-info">
-                            <h4>Short HYPE Training</h4>
-                            <p class="price">$30.00</p>
-                            <div class="product-controls">
-                                <select id="size-2" class="size-selector">
-                                    <option value="M">M</option>
-                                    <option value="L" selected>L</option>
-                                    <option value="XL">XL</option>
-                                </select>
-                                <button class="btn btn--primary btn--icon add-to-cart" data-id="2">
-                                    <i class="ph ph-plus"></i> AGREGAR
-                                </button>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="product-card">
-                        <div class="product-image">
-                            <span class="badge badge--neon">NEW</span>
-                            <a href="product.html?id=3">
-                                <img src="https://images.unsplash.com/photo-1518310383802-640c2de311b2?q=80&w=1470&auto=format&fit=crop" alt="Hoodie Tech">
-                            </a>
-                        </div>
-                        <div class="product-info">
-                            <h4>HYPE Tech Hoodie</h4>
-                            <p class="price">$65.00</p>
-                            <div class="product-controls">
-                                <select id="size-3" class="size-selector">
-                                    <option value="S">S</option>
-                                    <option value="M" selected>M</option>
-                                    <option value="L">L</option>
-                                </select>
-                                <button class="btn btn--primary btn--icon add-to-cart" data-id="3">
-                                    <i class="ph ph-plus"></i> AGREGAR
-                                </button>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-                
                 <div class="text-center" style="margin-top: 3rem;">
                     <a href="shop.html" class="btn btn--outline">VER TODO EL CATÁLOGO</a>
                 </div>
@@ -229,7 +227,7 @@
                 <h3>FINALIZAR COMPRA</h3>
                 <button class="close-btn" id="closeCheckout"><i class="ph ph-x"></i></button>
             </div>
-            
+
             <div class="checkout-body">
                 <div class="checkout-summary">
                     <div class="summary-row">
@@ -268,7 +266,8 @@
                     </div>
                     <div class="form-group">
                         <label>Dirección de Envío / Retiro</label>
-                        <textarea id="clientAddress" rows="2" placeholder="Ej: MRW Plaza Venezuela o Retiro Personal" required></textarea>
+                        <textarea id="clientAddress" rows="2" placeholder="Ej: MRW Plaza Venezuela o Retiro Personal"
+                            required></textarea>
                     </div>
                     <button type="submit" class="btn btn--primary btn--full">
                         CONFIRMAR PEDIDO <i class="ph ph-whatsapp-logo"></i>
@@ -278,6 +277,10 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <script src="script.js"></script>
 </body>
+
 </html>

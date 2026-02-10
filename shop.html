@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo | HYPE Sportswear</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <header class="header">
@@ -66,6 +70,13 @@
 
         <section class="section shop-section">
             <div class="container">
+                <!-- Buscador en tiempo real -->
+                <div class="search-bar">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar productos..."
+                        autocomplete="off">
+                </div>
+
                 <div class="filter-bar">
                     <button class="filter-btn active" data-category="all">TODO</button>
                     <button class="filter-btn" data-category="gym">GYM WEAR</button>
@@ -101,7 +112,7 @@
                 <h3>FINALIZAR COMPRA</h3>
                 <button class="close-btn" id="closeCheckout"><i class="ph ph-x"></i></button>
             </div>
-            
+
             <div class="checkout-body">
                 <div class="checkout-summary">
                     <div class="summary-row">
@@ -140,7 +151,8 @@
                     </div>
                     <div class="form-group">
                         <label>Dirección de Envío / Retiro</label>
-                        <textarea id="clientAddress" rows="2" placeholder="Ej: MRW Plaza Venezuela o Retiro Personal" required></textarea>
+                        <textarea id="clientAddress" rows="2" placeholder="Ej: MRW Plaza Venezuela o Retiro Personal"
+                            required></textarea>
                     </div>
                     <button type="submit" class="btn btn--primary btn--full">
                         CONFIRMAR PEDIDO <i class="ph ph-whatsapp-logo"></i>
@@ -150,6 +162,10 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <script src="script.js"></script>
 </body>
+
 </html>
