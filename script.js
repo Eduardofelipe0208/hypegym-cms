@@ -10,80 +10,30 @@ let cart = JSON.parse(localStorage.getItem('hypeCart')) || [];
 let currentBcvRate = CONFIG.manualRate; // Iniciamos con manual
 
 // --- BASE DE DATOS DE PRODUCTOS (ÚNICA FUENTE DE VERDAD) ---
-const PRODUCTS_DB = [
-    {
-        id: "1",
-        name: "HYPE Oversize Tee",
-        price: 35.00,
-        category: "street",
-        image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1470&auto=format&fit=crop",
-        badge: "BEST SELLER",
-        featured: true,
-        inStock: true,
-        sizes: ["S", "M", "L", "XL"],
-        description: "Camiseta oversize de algodón premium con fit urbano. Perfecta para entrenar o para el día a día."
-    },
-    {
-        id: "2",
-        name: "Short HYPE Training",
-        price: 30.00,
-        category: "gym",
-        image: "https://images.unsplash.com/photo-1552364142-f06dd635a796?q=80&w=1170&auto=format&fit=crop",
-        badge: null,
-        featured: true,
-        inStock: true,
-        sizes: ["M", "L", "XL"],
-        description: "Short de alto rendimiento con tecnología anti-transpirante y bolsillos con cierre."
-    },
-    {
-        id: "3",
-        name: "HYPE Tech Hoodie",
-        price: 65.00,
-        category: "street",
-        image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?q=80&w=1470&auto=format&fit=crop",
-        badge: "NEW",
-        featured: true,
-        inStock: true,
-        sizes: ["S", "M", "L", "XL"],
-        description: "Hoodie técnico con capucha ajustable, bolsillos frontales tipo canguro y acabado premium."
-    },
-    {
-        id: "4",
-        name: "Pro Combat Leggings",
-        price: 45.00,
-        category: "gym",
-        image: "img/4.jpg",
-        badge: null,
-        featured: false,
-        inStock: true,
-        sizes: ["S", "M", "L"],
-        description: "Leggings de compresión para máximo rendimiento. Diseño ergonómico y tela de secado rápido."
-    },
-    {
-        id: "5",
-        name: "HYPE Cap Black",
-        price: 20.00,
-        category: "accessories",
-        image: "img/5.jpg",
-        badge: null,
-        featured: false,
-        inStock: true,
-        sizes: ["Única"],
-        description: "Gorra ajustable con logo HYPE bordado. Perfecta para completar tu outfit deportivo."
-    },
-    {
-        id: "6",
-        name: "Urban Joggers Grey",
-        price: 55.00,
-        category: "street",
-        image: "img/7.jpg",
-        badge: "SALE",
-        featured: false,
-        inStock: false,
-        sizes: ["M", "L", "XL"],
-        description: "Joggers de corte urban con cintura elástica y puños ajustables. Estilo y comodidad."
+// --- BASE DE DATOS DE PRODUCTOS (DINÁMICA) ---
+let PRODUCTS_DB = [];
+
+// --- API FETCH PRODUCTS ---
+async function fetchProducts() {
+    try {
+        const response = await fetch('api/products.php');
+        if (!response.ok) throw new Error('Error al cargar productos');
+
+        const data = await response.json();
+        PRODUCTS_DB = data;
+
+        // Renderizar componentes una vez cargados los datos
+        renderFeaturedProducts();
+        // renderShop('all'); // Handled in init with URL params
+        renderProductDetail();
+
+        console.log("Productos cargados:", PRODUCTS_DB.length);
+
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        showToast("Error cargando el catálogo. Intenta recargar.", "error");
     }
-];
+}
 
 // --- ELEMENTOS DOM ---
 const els = {
@@ -109,71 +59,73 @@ const els = {
     filterBtns: document.querySelectorAll('.filter-btn')
 };
 
-// --- API BCV ---
-async function fetchBCV() {
+// --- VARIABLES GLOBALES ---
+let paymentMethods = []; // Se llena desde API
+
+// --- API CONFIG (Tasa + Métodos) ---
+async function fetchConfig() {
     try {
-        // Usamos una API gratuita común. Si falla, usa manualRate.
-        const response = await fetch('https://pydolarvenezuela-api-ryder.koyeb.app/api/v1/dollar?page=bcv');
+        const response = await fetch('api/config.php');
         const data = await response.json();
 
-        // Verifica la estructura de la respuesta
-        if (data && data.monitors && data.monitors.usd) {
-            currentBcvRate = parseFloat(data.monitors.usd.price);
-            console.log("BCV Rate Updated:", currentBcvRate);
-            // Notificar tasa actualizada (solo si hay contenedor)
-            if (document.getElementById('toastContainer')) {
-                showToast(`Tasa BCV actualizada: Bs. ${currentBcvRate.toFixed(2)}`, 'info');
-            }
+        if (data.exchange_rate) {
+            currentBcvRate = parseFloat(data.exchange_rate);
+            console.log("Tasa Interna Actualizada:", currentBcvRate);
         }
+
+        if (data.payment_methods) {
+            paymentMethods = data.payment_methods;
+            fillPaymentMethodsSelect();
+        }
+
+        // Actualizar UI si modal está abierto
+        updateCheckoutTotals();
+
     } catch (error) {
-        console.warn("API Error, using manual rate:", error);
-        currentBcvRate = CONFIG.manualRate;
+        console.error("Error cargando configuración:", error);
     }
-
-    // Si el modal está abierto, actualiza el texto
-    if (els.displayRate) els.displayRate.innerText = `Bs. ${currentBcvRate.toFixed(2)}`;
 }
 
-// --- SISTEMA DE NOTIFICACIONES TOAST ---
-function showToast(message, type = 'success') {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
+function fillPaymentMethodsSelect() {
+    const select = document.getElementById('paymentMethod');
+    if (!select) return;
 
-    const icons = {
-        success: 'ph-check-circle',
-        error: 'ph-x-circle',
-        info: 'ph-info'
-    };
-
-    const toast = document.createElement('div');
-    toast.className = `toast toast--${type}`;
-    toast.innerHTML = `
-        <i class="ph ${icons[type]} toast__icon"></i>
-        <div class="toast__content">${message}</div>
-    `;
-
-    container.appendChild(toast);
-
-    // Auto-dismiss después de 3 segundos
-    setTimeout(() => {
-        toast.classList.add('toast--hiding');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    select.innerHTML = '<option value="" disabled selected>Selecciona una opción</option>';
+    paymentMethods.forEach(method => {
+        select.innerHTML += `<option value="${method.id}">${method.name}</option>`;
+    });
 }
 
-
-// --- LOGICA DE CHECKOUT ---
-function openCheckoutModal() {
-    if (cart.length === 0) return;
+function updateCheckoutTotals() {
+    if (!els.displayRate) return;
 
     const totalUSD = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const totalBS = totalUSD * currentBcvRate;
 
-    // Actualiza los valores visibles
     els.displayRate.innerText = `Bs. ${currentBcvRate.toFixed(2)}`;
     els.displayTotalUSD.innerText = `$${totalUSD.toFixed(2)}`;
     els.displayTotalBS.innerText = `Bs. ${totalBS.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
 
+// --- LOGICA UI CHECKOUT ---
+window.updatePaymentInstructions = function () {
+    const methodId = document.getElementById('paymentMethod').value;
+    const container = document.getElementById('paymentInstructions');
+
+    const method = paymentMethods.find(m => m.id == methodId);
+
+    if (method && method.instructions) {
+        container.style.display = 'block';
+        container.innerHTML = `<strong>Datos para el pago:</strong><br>${method.instructions.replace(/\n/g, '<br>')}`;
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+// --- LOGICA DE CHECKOUT (ENVÍO PEDIDO) ---
+function openCheckoutModal() {
+    if (cart.length === 0) return;
+    updateCheckoutTotals();
     closeCart(); // Cierra el carrito
     els.checkoutOverlay.classList.add('open'); // Abre el modal
 }
@@ -182,54 +134,89 @@ function closeCheckoutModal() {
     els.checkoutOverlay.classList.remove('open');
 }
 
-function submitOrder(e) {
+async function submitOrder(e) {
     e.preventDefault();
+    const btn = document.getElementById('btnSubmitOrder');
+    const statusMsg = document.getElementById('orderStatus');
+
+    // Bloquear botón
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Procesando...';
+    statusMsg.innerText = '';
 
     const name = document.getElementById('clientName').value;
     const phone = document.getElementById('clientPhone').value;
-    const method = document.getElementById('paymentMethod').value;
+    const email = document.getElementById('clientEmail').value;
+    const methodId = document.getElementById('paymentMethod').value;
+    const methodName = paymentMethods.find(m => m.id == methodId)?.name || 'Desconocido';
+    const reference = document.getElementById('paymentReference').value;
     const address = document.getElementById('clientAddress').value;
 
-    const totalUSD = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const totalBS = totalUSD * currentBcvRate;
+    const orderData = {
+        name,
+        phone,
+        email,
+        address,
+        payment_method_id: methodId,
+        payment_method_name: methodName,
+        reference,
+        cart: cart.map(item => ({ id: item.id, quantity: item.quantity }))
+    };
 
-    // Mensaje para WhatsApp
-    let msg = `*NUEVO PEDIDO HYPE* 🚀\n`;
-    msg += `--------------------------------\n`;
-    msg += `👤 *Cliente:* ${name}\n`;
-    msg += `📱 *Teléfono:* ${phone}\n`;
-    msg += `📍 *Dirección:* ${address}\n`;
-    msg += `💳 *Método:* ${method}\n`;
-    msg += `--------------------------------\n`;
-    msg += `🛒 *PEDIDO:*\n`;
+    try {
+        const response = await fetch('api/checkout.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+        const result = await response.json();
 
-    cart.forEach(item => {
-        msg += `▪️ ${item.name} (${item.size}) x${item.quantity}\n`;
-    });
+        if (result.success) {
+            // ÉXITO
+            showToast('¡Pedido recibido! Redirigiendo a WhatsApp...', 'success');
 
-    msg += `--------------------------------\n`;
-    msg += `💵 *TOTAL USD: $${totalUSD.toFixed(2)}*\n`;
-    msg += `🇻🇪 *TOTAL BS: Bs. ${totalBS.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}*\n`;
-    msg += `📉 *Tasa BCV:* ${currentBcvRate.toFixed(2)}\n`;
-    msg += `--------------------------------\n`;
-    msg += `Espero datos de pago.`;
+            // Construir mensaje de WhatsApp
+            const cartText = cart.map(i => `• ${i.name} (${i.size}) x${i.quantity}`).join('\n');
+            const totalUSD = els.displayTotalUSD.innerText;
+            const totalBS = els.displayTotalBS.innerText;
 
-    window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+            let message = `*HOLA! 👋 Vengo de hypesportswear.com*\n\n` +
+                `📦 *NUEVO PEDIDO #${result.order_id}*\n` +
+                `👤 *Cliente:* ${name}\n` +
+                `📱 *Tel:* ${phone}\n` +
+                `💳 *Pago:* ${methodName} (Ref: ${reference})\n` +
+                `📍 *Envío:* ${address}\n\n` +
+                `🛒 *RESUMEN:*\n${cartText}\n\n` +
+                `💰 *TOTAL:* ${totalUSD} / ${totalBS}`;
 
-    // --- FLUJO POST-COMPRA ---
-    // 1. Cerrar modal de checkout
-    closeCheckoutModal();
+            // Codificar el mensaje para URL
+            const encodedMessage = encodeURIComponent(message);
+            const waLink = `https://wa.me/584120936783?text=${encodedMessage}`;
 
-    // 2. Limpiar carrito
-    cart = [];
-    renderCart();
+            // Limpiar todo
+            cart = [];
+            renderCart();
+            els.checkoutForm.reset();
+            closeCheckoutModal();
 
-    // 3. Resetear formulario
-    els.checkoutForm.reset();
+            // Redirigir a WhatsApp (Estándar para móviles y desktop sin bloqueos)
+            window.location.href = waLink;
 
-    // 4. Mostrar mensaje de éxito
-    showToast('¡Pedido enviado! Te contactaremos por WhatsApp.', 'success');
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+
+    } catch (error) {
+        showToast('Error al procesar pedido: ' + error.message, 'error');
+        statusMsg.innerText = 'Error: ' + error.message;
+        statusMsg.style.color = '#ff6b6b';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'CONFIRMAR Y PAGAR <i class="ph ph-check-circle"></i>';
+    }
 }
+
+// Reemplazo de init para usar fetchConfig
 
 // --- FUNCIONES CARRITO & TIENDA ---
 function renderCart() {
@@ -292,7 +279,7 @@ function renderFeaturedProducts() {
     const container = document.getElementById('featuredContainer');
     if (!container) return; // No estamos en el Home
 
-    const featured = PRODUCTS_DB.filter(p => p.featured === true);
+    const featured = PRODUCTS_DB.filter(p => p.featured === true).slice(0, 3);
     container.innerHTML = '';
 
     featured.forEach(p => {
@@ -309,7 +296,7 @@ function renderFeaturedProducts() {
             <article class="product-card${stockClass}">
                 <div class="product-image">
                     ${badge}
-                    <a href="product.html?id=${p.id}">
+                    <a href="product.php?id=${p.id}">
                         <img src="${p.image}" alt="${p.name}">
                     </a>
                 </div>
@@ -370,7 +357,7 @@ function renderShop(category = 'all', searchQuery = '') {
         els.shopContainer.innerHTML += `
             <article class="product-card${stockClass}">
                 <div class="product-image">
-                    <a href="product.html?id=${p.id}">${badge}<img src="${p.image}" loading="lazy"></a>
+                    <a href="product.php?id=${p.id}">${badge}<img src="${p.image}" loading="lazy"></a>
                 </div>
                 <div class="product-info">
                     <h4>${p.name}</h4><p class="price">$${p.price.toFixed(2)}</p>
@@ -403,7 +390,7 @@ function renderProductDetail() {
     const btnText = p.inStock ? 'AGREGAR AL CARRITO' : 'PRODUCTO AGOTADO';
 
     container.innerHTML = `
-        <a href="shop.html" class="back-link">← Volver</a>
+        <a href="shop.php" class="back-link">← Volver</a>
         <div class="product-detail-grid">
             <div class="pd-image"><img src="${p.image}"></div>
             <div class="pd-info">
@@ -427,13 +414,53 @@ window.addToCartDetail = function (id) {
     renderCart(); openCart();
 }
 
+// --- TOAST NOTIFICATIONS ---
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+
+    let icon = 'info';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'error') icon = 'warning';
+
+    toast.innerHTML = `
+        <i class="ph ph-${icon} toast__icon"></i>
+        <div class="toast__content">${message}</div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.add('toast--hiding');
+        toast.addEventListener('animationend', () => toast.remove());
+    }, 4000);
+}
+
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
-    fetchBCV();
+    fetchConfig(); // Configuración (Tasa/Métodos)
+    fetchProducts(); // Productos (Catálogo)
+
+    // Check for category param in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+        // Wait a bit for products to load, or handle in renderShop directly
+        // Better: trigger the filter button click if it exists
+        setTimeout(() => {
+            const btn = document.querySelector(`.filter-btn[data-category="${categoryParam}"]`);
+            if (btn) btn.click();
+            else renderShop(categoryParam);
+        }, 500);
+    } else {
+        renderShop('all');
+    }
+
     renderCart();
-    renderFeaturedProducts();  // Renderiza productos destacados en Home
-    renderShop('all');
-    renderProductDetail();
 
     // Listeners generales
     if (els.cartToggle) els.cartToggle.addEventListener('click', openCart);

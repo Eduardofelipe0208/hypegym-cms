@@ -507,9 +507,13 @@ img {
     background: #161719;
     width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    /* Limitar altura */
+    display: flex;
+    flex-direction: column;
+    /* Para que header y body se apilen */
     border: 1px solid #333;
     border-radius: 8px;
-    overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     transform: translateY(20px);
     transition: 0.3s;
@@ -526,10 +530,14 @@ img {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #222;
+    flex-shrink: 0;
+    /* No encoger header */
 }
 
 .checkout-body {
     padding: 1.5rem;
+    overflow-y: auto;
+    /* Scroll interno si es muy alto */
 }
 
 .checkout-summary {
