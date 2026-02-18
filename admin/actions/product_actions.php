@@ -5,7 +5,7 @@
  */
 
 session_start();
-require_once '../../db.php';
+require_once '../../includes/db.php';
 require_once '../includes/logger.php';
 
 // Validar seguridad

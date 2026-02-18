@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-require_once '../db.php';
+require_once '../includes/db.php';
 
 // Obtener productos
 $products = dbQuery("

@@ -4,7 +4,7 @@
  * Función global para registrar actividades
  */
 
-require_once __DIR__ . '/../../db.php';
+require_once __DIR__ . '/../../includes/db.php';
 
 if (!function_exists('logAction')) {
     function logAction($action, $description = '') {

@@ -2,7 +2,7 @@
 /**
  * Script para ejecutar optimizaciones de base de datos
  */
-require_once 'db.php';
+require_once '../includes/db.php';
 
 echo "<h1>Aplicando Índices...</h1>";
 

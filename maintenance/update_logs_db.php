@@ -2,7 +2,7 @@
 /**
  * Script para ejecutar actualizaciones de base de datos (Logs)
  */
-require_once 'db.php';
+require_once '../includes/db.php';
 
 echo "<h1>Creando Tabla de Logs...</h1>";
 

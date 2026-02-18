@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../includes/db.php';
 try {
     // 1. Truncate categories (WARNING: IDs will reset, but we only have 3 so it's fine)
     // Actually, let's just delete all and insert new ones to get clean IDs 1, 2, 3

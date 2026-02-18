@@ -4,7 +4,7 @@
  * Genera un archivo CSV compatible con Excel
  */
 
-require_once '../../db.php';
+require_once '../../includes/db.php';
 
 // Validar Sesión
 session_start();

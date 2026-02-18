@@ -2,7 +2,7 @@
 /**
  * Script para ejecutar actualizaciones de base de datos (Checkout & CMS)
  */
-require_once 'db.php';
+require_once '../includes/db.php';
 
 echo "<h1>Actualizando Base de Datos (Checkout + CMS)...</h1>";
 

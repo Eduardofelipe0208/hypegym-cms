@@ -5,7 +5,7 @@
  */
 
 // Incluir conexión a la base de datos
-require_once 'db.php';
+require_once 'includes/db.php';
 
 // Obtener el ID del producto desde la URL
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;

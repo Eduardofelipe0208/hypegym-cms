@@ -5,7 +5,7 @@
  */
 
 header('Content-Type: application/json');
-require_once '../db.php';
+require_once '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); // Method Not Allowed

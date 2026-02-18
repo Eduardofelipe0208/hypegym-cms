@@ -5,7 +5,7 @@
  */
 
 header('Content-Type: application/json');
-require_once '../db.php';
+require_once '../includes/db.php';
 
 session_start();
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {

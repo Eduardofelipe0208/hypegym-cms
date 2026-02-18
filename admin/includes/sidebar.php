@@ -1,7 +1,24 @@
 <?php
 // Determinar página activa
 $current_page = basename($_SERVER['PHP_SELF']);
+
+// Cargar configuraciones si no están cargadas
+if (!function_exists('getSetting')) {
+    // Asumiendo que sidebar se incluye desde admin/pagina.php
+    $loaderPath = __DIR__ . '/../../includes/settings_loader.php';
+    if (file_exists($loaderPath)) {
+        require_once $loaderPath;
+    }
+}
+
+$primary_color = function_exists('getSetting') ? getSetting('primary_color', '#D6FE00') : '#D6FE00';
 ?>
+<style>
+    :root {
+        --primary-color: <?php echo $primary_color; ?> !important;
+        --neon-green: <?php echo $primary_color; ?> !important;
+    }
+</style>
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <i class="ph ph-lightning"></i> <span>HYPE<span class="neon">.</span></span>

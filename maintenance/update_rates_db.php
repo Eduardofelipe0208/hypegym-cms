@@ -2,7 +2,7 @@
 /**
  * Script para ejecutar actualizaciones de base de datos (Historial de Tasas)
  */
-require_once 'db.php';
+require_once '../includes/db.php';
 
 echo "<h1>Actualizando Schema de Tasas...</h1>";
 

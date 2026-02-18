@@ -4,7 +4,7 @@
  * Carga todas las configuraciones globales desde la base de datos
  */
 
-require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/db.php';
 
 // Obtener todas las configuraciones
 $global_settings = [];

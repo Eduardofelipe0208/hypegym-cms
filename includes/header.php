@@ -44,13 +44,15 @@ $og_image = $og_image ?? 'https://images.unsplash.com/photo-1556821840-3a63f9560
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
 
     <!-- Dynamic Styles -->
     <style>
         :root {
             --primary-color: <?php echo $primary_color; ?>;
+            --neon-green: <?php echo $primary_color; ?>;
             --text-neon: <?php echo $primary_color; ?>;
+            --neon-hover: <?php echo $primary_color; ?>; /* Simplificación por ahora */
         }
     </style>
 </head>

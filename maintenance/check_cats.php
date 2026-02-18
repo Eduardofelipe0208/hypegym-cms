@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../includes/db.php';
 $cats = dbQuery("SELECT * FROM categories");
 echo "Current Categories:\n";
 foreach ($cats as $c) {

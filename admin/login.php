@@ -12,7 +12,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
     exit;
 }
 
-require_once '../db.php';
+require_once '../includes/db.php';
 
 $error_message = '';
 

@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../includes/db.php';
 try {
     // Get new categories
     $cats = dbQuery("SELECT * FROM categories ORDER BY id ASC");

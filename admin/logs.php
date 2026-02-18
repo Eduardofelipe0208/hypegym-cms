@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-require_once '../db.php';
+require_once '../includes/db.php';
 $admin_username = $_SESSION['admin_username'] ?? 'Administrador';
 
 // Filtros

@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../includes/db.php';
 try {
     $cats = dbQuery("SELECT * FROM categories LIMIT 1");
     if (empty($cats)) {

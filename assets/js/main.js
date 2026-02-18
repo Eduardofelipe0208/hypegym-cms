@@ -23,9 +23,12 @@ async function fetchProducts() {
         PRODUCTS_DB = data;
 
         // Renderizar componentes una vez cargados los datos
+        // Renderizar componentes una vez cargados los datos
         renderFeaturedProducts();
-        // renderShop('all'); // Handled in init with URL params
         renderProductDetail();
+
+        // Inicializar la tienda (si estamos en shop.php)
+        initShopRender();
 
         console.log("Productos cargados:", PRODUCTS_DB.length);
 
@@ -440,25 +443,31 @@ function showToast(message, type = 'info') {
     }, 4000);
 }
 
+// --- INIT SHOP RENDER ---
+function initShopRender() {
+    // Solo ejecutar si existe el contenedor de tienda
+    if (!els.shopContainer) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+
+    if (categoryParam) {
+        // Intentar activar el botón correspondiente
+        const btn = document.querySelector(`.filter-btn[data-category="${categoryParam}"]`);
+        if (btn) {
+            btn.click();
+        } else {
+            renderShop(categoryParam);
+        }
+    } else {
+
+    }
+}
+
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
     fetchConfig(); // Configuración (Tasa/Métodos)
     fetchProducts(); // Productos (Catálogo)
-
-    // Check for category param in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const categoryParam = urlParams.get('category');
-    if (categoryParam) {
-        // Wait a bit for products to load, or handle in renderShop directly
-        // Better: trigger the filter button click if it exists
-        setTimeout(() => {
-            const btn = document.querySelector(`.filter-btn[data-category="${categoryParam}"]`);
-            if (btn) btn.click();
-            else renderShop(categoryParam);
-        }, 500);
-    } else {
-        renderShop('all');
-    }
 
     renderCart();
 

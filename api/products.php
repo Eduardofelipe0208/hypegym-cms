@@ -5,7 +5,7 @@
  */
 
 header('Content-Type: application/json');
-require_once '../db.php';
+require_once '../includes/db.php';
 
 try {
     // Obtener productos visibles (stock > 0 opcional, pero mejor mostrar todos con estado 'Agotado')

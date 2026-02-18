@@ -6,7 +6,7 @@
  * Uso: Acceder a http://localhost/seed.php desde el navegador
  */
 
-require_once 'db.php';
+require_once '../includes/db.php';
 
 // Configuración del usuario administrador
 $username = 'admin';

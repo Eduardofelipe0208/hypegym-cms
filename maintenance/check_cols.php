@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once '../includes/db.php';
 try {
     $cols = dbQuery("SHOW COLUMNS FROM categories");
     foreach ($cols as $col) {

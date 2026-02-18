@@ -103,7 +103,7 @@
     <!-- Toast Notifications Container -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <script src="script.js?v=<?php echo time(); ?>"></script>
+    <script src="assets/js/main.js?v=<?php echo time(); ?>"></script>
 </body>
 
 </html>
