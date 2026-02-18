@@ -124,8 +124,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
             // $prod = dbQueryOne("SELECT image_url FROM products WHERE id = ?", [$id]);
             // if ($prod && file_exists("../../" . $prod['image_url'])) unlink("../../" . $prod['image_url']);
 
-            dbExecute("DELETE FROM products WHERE id = ?", [$id]);
+            $result = dbExecute("DELETE FROM products WHERE id = ?", [$id]);
             
+            if ($result === false) {
+                // Probable error de restricción de clave foránea
+                throw new Exception("No se pudo eliminar el producto. Verifica que no tenga pedidos asociados.");
+            }
+            
+            if ($result === 0) {
+                 throw new Exception("Producto no encontrado o ya eliminado.");
+            }
+
             logAction('producto_eliminado', "Producto eliminado ID: $id");
 
             header('Location: ../products.php?success=deleted');
@@ -134,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
 
     } catch (Exception $e) {
         // Log error
-        file_put_contents('error_log.txt', date('Y-m-d H:i:s') . " - Product Error: " . $e->getMessage() . "\n", FILE_APPEND);
+        logAction('error_producto', "Error en gestión de productos: " . $e->getMessage());
         header('Location: ../products.php?error=' . urlencode($e->getMessage()));
         exit;
     }

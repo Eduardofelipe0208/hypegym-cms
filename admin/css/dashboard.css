@@ -416,41 +416,103 @@ body {
     font-weight: 500;
 }
 
-/* Mobile */
-@media (max-width: 1200px) {
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 260px;
+        /* Slightly smaller on mobile */
+    }
 
-    .charts-grid,
+    /* Sidebar - Hidden by default on mobile */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        box-shadow: none;
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Main Wrapper - No margin on mobile */
+    .main-wrapper {
+        margin-left: 0 !important;
+        /* Force override */
+        width: 100%;
+    }
+
+    /* Topbar */
+    .topbar {
+        padding: 0 1.5rem;
+        justify-content: space-between;
+    }
+
+    .page-title {
+        font-size: 1.2rem;
+    }
+
+    .user-profile span {
+        display: none;
+        /* Hide username on small screens */
+    }
+
+    /* Content Padding */
+    .dashboard-content {
+        padding: 1.5rem;
+    }
+
+    /* Grid Adjustments */
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
     .dashboard-bottom-grid {
         grid-template-columns: 1fr;
     }
 
-    .chart-card.full-width {
-        grid-column: auto;
+    /* Table Responsiveness */
+    .recent-orders-card {
+        overflow-x: auto;
+    }
+
+    .recent-table {
+        min-width: 600px;
+        /* Force scroll */
     }
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .main-wrapper {
-        margin-left: 0;
-    }
-
-    .topbar {
-        padding: 0 1.5rem;
-    }
-
-    .dashboard-content {
-        padding: 1.5rem;
-    }
+/* Overlay for Mobile Sidebar */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
 }
 
-/* Collapsed Sidebar (Desktop) */
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Tablet / Desktop Collapsed State */
 @media (min-width: 769px) {
     .sidebar {
         transition: width 0.3s ease;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .main-wrapper {
@@ -459,20 +521,19 @@ body {
 
     body.collapsed .sidebar {
         width: 80px;
-        padding: 2rem 1rem;
     }
 
     body.collapsed .main-wrapper {
         margin-left: 80px;
     }
 
-    body.collapsed .sidebar-logo {
-        justify-content: center;
-        margin-bottom: 2rem;
+    body.collapsed .sidebar-logo span,
+    body.collapsed .nav-item span {
+        display: none;
     }
 
-    body.collapsed .sidebar-logo span {
-        display: none;
+    body.collapsed .sidebar-logo {
+        justify-content: center;
     }
 
     body.collapsed .nav-item {
@@ -480,37 +541,7 @@ body {
         padding: 14px 0;
     }
 
-    body.collapsed .nav-item span {
-        display: none;
-    }
-
     body.collapsed .sidebar-footer {
-        display: flex;
         justify-content: center;
-    }
-
-    body.collapsed .sidebar-footer .nav-item {
-        padding: 10px;
-    }
-
-    /* Tooltip logic for collapsed state (Optional enhancement) */
-    body.collapsed .nav-item {
-        position: relative;
-    }
-
-    body.collapsed .nav-item:hover::after {
-        content: attr(title);
-        /* Requires title attribute on links, we can add later or ignore */
-        position: absolute;
-        left: 70px;
-        background: var(--bg-card);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 5px 10px;
-        border-radius: 4px;
-        white-space: nowrap;
-        z-index: 1000;
-        font-size: 0.8rem;
-        color: #fff;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 }
