@@ -1,85 +1,59 @@
 <?php
-// No requiere meta tags personalizados, usar los por defecto
-include 'includes/header.php';
-?>
+/**
+ * Front Controller - HYPE Sportswear CMS
+ * Maneja todas las solicitudes y carga el tema correspondiente
+ */
 
-<main>
-    <section class="hero">
-        <div class="hero__bg">
-            <img src="<?php echo htmlspecialchars(getSetting('hero_image', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop')); ?>"
-                alt="Entrenamiento HYPE">
-            <div class="overlay"></div>
-        </div>
-        <div class="container hero__content">
-            <span class="hero__tag">NEW COLLECTION 2026</span>
-            <h1 class="hero__title"><?php echo getSetting('hero_title', 'SPORTSWEAR PARA LOS QUE <span class="text-neon">NO SE DETIENEN</span>'); ?></h1>
-            <p class="hero__subtitle"><?php echo htmlspecialchars(getSetting('hero_subtitle', 'Diseño urbano, rendimiento profesional. HYPE no es moda, es mentalidad.')); ?></p>
-            <div class="hero__btns">
-                <a href="shop.php" class="btn btn--primary">VER TIENDA</a>
-                <a href="#collections" class="btn btn--outline">VER COLECCIONES</a>
-            </div>
-        </div>
-    </section>
+// 1. Cargar configuración global (si existe)
+if (file_exists('includes/db.php')) {
+    require_once 'includes/settings_loader.php';
+} else {
+    // Si no hay configuración, redirigir al instalador
+    if (file_exists('install.php')) {
+        header('Location: install.php');
+        exit;
+    } else {
+        die("Error: El sistema no est&aacute; instalado y no se encuentra el instalador.");
+    }
+}
 
-    <section id="collections" class="section">
-        <div class="container">
-            <h2 class="section-title">COLECCIONES</h2>
-            <div class="grid-collections">
-                <a href="shop.php?category=gym%20wear" class="collection-card">
-                    <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=1470&auto=format&fit=crop"
-                        alt="Gym">
-                    <div class="collection-content">
-                        <h3>GYM WEAR</h3>
-                    </div>
-                </a>
-                <a href="shop.php?category=street" class="collection-card">
-                    <img src="img/4.jpg" alt="Street">
-                    <div class="collection-content">
-                        <h3>STREET</h3>
-                    </div>
-                </a>
-                <a href="shop.php?category=accesorios" class="collection-card">
-                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1470&auto=format&fit=crop"
-                        alt="Performance">
-                    <div class="collection-content">
-                        <h3>ACCESORIOS</h3>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </section>
+// 2. Definir rutas válidas y sus archivos de tema correspondientes
+$routes = [
+    'home'    => 'home.php',
+    'shop'    => 'shop.php',
+    'product' => 'product.php',
+    'cart'    => 'cart.php', // Futuro
+    'checkout'=> 'checkout.php' // Futuro
+];
 
-    <section class="section section--dark">
-        <div class="container">
-            <h2 class="section-title">LO MÁS <span class="text-neon">VENDIDO</span></h2>
-            <!-- Productos renderizados dinámicamente vía JS -->
-            <div class="grid-products" id="featuredContainer"></div>
+// 3. Detectar la página solicitada
+// Opción A: index.php?page=nombre (Más compatible con servidor local simple)
+$page = $_GET['page'] ?? 'home';
 
-            <div class="text-center" style="margin-top: 3rem;">
-                <a href="shop.php" class="btn btn--outline">VER TODO EL CATÁLOGO</a>
-            </div>
-        </div>
-    </section>
+// Validar que la página exista en nuestras rutas
+if (!array_key_exists($page, $routes)) {
+    // Si no existe, 404 o redirigir a home
+    http_response_code(404);
+    $page = 'home'; // Fallback a home por ahora
+}
 
-    <section class="section benefits-section">
-        <div class="container grid-benefits">
-            <div class="benefit">
-                <i class="ph ph-lightning text-neon"></i>
-                <h4>ENERGÍA</h4>
-                <p>Diseños para romper tus límites.</p>
-            </div>
-            <div class="benefit">
-                <i class="ph ph-medal text-neon"></i>
-                <h4>CALIDAD</h4>
-                <p>Telas premium anti-transpirantes.</p>
-            </div>
-            <div class="benefit">
-                <i class="ph ph-truck text-neon"></i>
-                <h4>ENVÍOS</h4>
-                <p>Rápidos y seguros a todo el país.</p>
-            </div>
-        </div>
-    </section>
-</main>
+// 4. Configurar el tema (por defecto 'default')
+// En el futuro esto vendrá de la base de datos: getSetting('active_theme', 'default')
+$theme = 'default'; 
+$themePath = "themes/$theme/";
 
-<?php include 'includes/footer.php'; ?>
+// Archivo a cargar
+$themeFile = $themePath . $routes[$page];
+
+// 5. Verificar que el archivo del tema exista
+if (!file_exists($themeFile)) {
+    die("Error: El archivo del tema '$themeFile' no existe.");
+}
+
+// 6. Inyectar variables globales para el tema (Simulación por ahora)
+// Estas vendrán de la DB en el paso 1.3
+$site_name = getSetting('site_name', 'HYPE Sportswear');
+$currency = getSetting('currency_symbol', '$');
+
+// 7. Cargar el tema
+include $themeFile;

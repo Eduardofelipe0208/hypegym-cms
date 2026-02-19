@@ -23,6 +23,9 @@ foreach ($rows as $r) {
 // Obtener historial de tasa (Últimos 10)
 $rateHistory = dbQuery("SELECT * FROM rate_history ORDER BY created_at DESC LIMIT 10");
 
+// Obtener métodos de pago
+$paymentMethods = dbQuery("SELECT * FROM payment_methods ORDER BY id ASC");
+
 // Helpers
 function getVal($key, $default = '') {
     global $settings;
@@ -138,6 +141,16 @@ function getVal($key, $default = '') {
                         </div>
 
                         <div class="form-group">
+                            <label class="form-label">Nombre de la Tienda</label>
+                            <input type="text" name="site_name" class="form-control" value="<?php echo getVal('site_name', 'HYPE Sportswear'); ?>">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Símbolo de Moneda</label>
+                            <input type="text" name="currency_symbol" class="form-control" value="<?php echo getVal('currency_symbol', '$'); ?>">
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label">Color Principal (Neon Accent)</label>
                             <div style="display:flex; gap:10px;">
                                 <input type="color" name="primary_color" class="color-picker" style="width:60px; height:40px; padding:0;" value="<?php echo getVal('primary_color', '#D6FE00'); ?>">
@@ -146,34 +159,7 @@ function getVal($key, $default = '') {
                         </div>
                     </div>
 
-                    <!-- Hero Banner -->
-                    <div class="settings-card">
-                        <h3 class="section-title"><i class="ph ph-image"></i> Banner Principal</h3>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Imagen de Fondo (Banner)</label>
-                            <input type="file" name="hero_image_file" class="form-control" accept="image/*" onchange="previewBanner(this)">
-                            
-                            <?php if ($settings['hero_image'] ?? false): ?>
-                                <div style="margin-top:10px; position:relative;">
-                                    <img src="../<?php echo htmlspecialchars($settings['hero_image']); ?>" id="bannerPreview" style="width:100%; border-radius:8px; height:150px; object-fit:cover;">
-                                    <input type="hidden" name="existing_hero_image" value="<?php echo htmlspecialchars($settings['hero_image']); ?>">
-                                </div>
-                            <?php else: ?>
-                                <img id="bannerPreview" style="width:100%; border-radius:8px; height:150px; object-fit:cover; display:none; margin-top:10px;">
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Título (Soporta HTML)</label>
-                            <input type="text" name="hero_title" class="form-control" value="<?php echo getVal('hero_title'); ?>">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Subtítulo</label>
-                            <textarea name="hero_subtitle" class="form-control" rows="2"><?php echo getVal('hero_subtitle'); ?></textarea>
-                        </div>
-                    </div>
+                    <!-- (Banner Principal movido a Secciones) -->
 
                     <!-- Contacto & Redes -->
                     <div class="settings-card">
@@ -221,6 +207,29 @@ function getVal($key, $default = '') {
                             </tr>
                             <?php endforeach; ?>
                         </table>
+                    </div>
+
+                    <!-- Métodos de Pago -->
+                    <div class="settings-card">
+                        <h3 class="section-title"><i class="ph ph-credit-card"></i> Métodos de Pago</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+                            Configura los datos bancarios que verá el cliente al finalizar la compra.
+                        </p>
+                        
+                        <?php foreach($paymentMethods as $pm): ?>
+                        <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px; margin-bottom:1rem; border:1px solid var(--border-color);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                <input type="hidden" name="payment_methods[<?php echo $pm['id']; ?>][id]" value="<?php echo $pm['id']; ?>">
+                                <input type="text" name="payment_methods[<?php echo $pm['id']; ?>][name]" value="<?php echo htmlspecialchars($pm['name']); ?>" class="form-control" style="font-weight:bold; width:60%;">
+                                
+                                <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                                    <input type="checkbox" name="payment_methods[<?php echo $pm['id']; ?>][is_active]" value="1" <?php echo $pm['is_active'] ? 'checked' : ''; ?>>
+                                    <span style="font-size:0.85rem;">Activo</span>
+                                </label>
+                            </div>
+                            <textarea name="payment_methods[<?php echo $pm['id']; ?>][instructions]" class="form-control" rows="3" placeholder="Ingresa los datos bancarios (Banco, Cuenta, CI, Tlf, Correo)..."><?php echo htmlspecialchars($pm['instructions']); ?></textarea>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
 
                 </div>

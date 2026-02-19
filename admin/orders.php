@@ -169,10 +169,22 @@ $paymentMethods = dbQuery("SELECT id, name FROM payment_methods ORDER BY name AS
             background: currentColor;
         }
         
-        .status-pending { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); }
-        .status-paid { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
-        .status-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .status-shipped { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-select {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #0F1011;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .status-select:focus { outline: none; border-color: var(--primary-color); }
+        
+        .status-pending { color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+        .status-completed { color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+        .status-cancelled { color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
 
         .loader {
             text-align: center;
@@ -246,8 +258,8 @@ $paymentMethods = dbQuery("SELECT id, name FROM payment_methods ORDER BY name AS
                             <th>ID</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
+                            <th>Productos</th>
                             <th>Total (USD)</th>
-                            <th>Total (Bs)</th>
                             <th>Método</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -308,6 +320,12 @@ $paymentMethods = dbQuery("SELECT id, name FROM payment_methods ORDER BY name AS
                 }
 
                 result.data.forEach(order => {
+                    const statusOptions = `
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pendiente</option>
+                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Aprobado</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelado</option>
+                    `;
+                    
                     const row = `
                         <tr>
                             <td style="font-family:'Chakra Petch';">#${order.id}</td>
@@ -316,17 +334,23 @@ $paymentMethods = dbQuery("SELECT id, name FROM payment_methods ORDER BY name AS
                                 <div style="font-weight:600;">${order.customer_name}</div>
                                 <div style="font-size:0.8rem; color:#888;">${order.customer_phone}</div>
                             </td>
-                            <td style="font-weight:600;">$${parseFloat(order.total_amount).toFixed(2)}</td>
-                            <td style="color:var(--text-muted);">Bs. ${parseFloat(order.total_bs).toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
                             <td>
-                                <div>${order.payment_method_id || 'N/A'}</div>
+                                <div style="font-size:0.85rem; color:#ccc; max-width:250px; white-space:normal; line-height:1.4;">
+                                    ${order.product_summary || 'Sin productos'}
+                                </div>
+                            </td>
+                            <td style="font-weight:600; color:var(--neon-color);">$${parseFloat(order.total_amount).toFixed(2)}</td>
+                            <td>
+                                <div>${order.payment_method_name || 'Desconocido'}</div>
                                 <div style="font-size:0.75rem; color:#888;">Ref: ${order.payment_reference || '-'}</div>
                             </td>
                             <td>
-                                <span class="status-badge status-${order.status.toLowerCase()}">${order.status_label}</span>
+                                <select onchange="updateOrderStatus(${order.id}, this.value)" class="status-select status-${order.status}">
+                                    ${statusOptions}
+                                </select>
                             </td>
                             <td>
-                                <a href="order_detail.php?id=${order.id}" class="action-btn btn-edit" title="Ver Detalles">
+                                <a href="order_detail.php?id=${order.id}" class="action-btn btn-edit" title="Ver Detalles" target="_blank">
                                     <i class="ph ph-eye"></i>
                                 </a>
                             </td>
@@ -339,6 +363,32 @@ $paymentMethods = dbQuery("SELECT id, name FROM payment_methods ORDER BY name AS
                 console.error(error);
                 loader.style.display = 'none';
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#f87171;">Error de conexión</td></tr>`;
+            }
+        }
+
+        async function updateOrderStatus(id, newStatus) {
+            if(!confirm('¿Estás seguro de cambiar el estado del pedido?')) {
+                loadOrders(); // Revertir visualmente
+                return;
+            }
+
+            try {
+                const response = await fetch('actions/order_status.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ order_id: id, status: newStatus })
+                });
+                const result = await response.json();
+                
+                if(result.success) {
+                    // Recargar para refrescar colores/estilos
+                    loadOrders();
+                    // Opcional: Mostrar toast
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Error de conexión');
             }
         }
     </script>

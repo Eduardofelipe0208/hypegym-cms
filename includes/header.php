@@ -10,7 +10,7 @@ $site_logo = getSetting('site_logo_text', 'HYPE');
 $primary_color = getSetting('primary_color', '#D6FE00');
 
 // Determinar la página actual para marcar el menú activo
-$current_page = basename($_SERVER['PHP_SELF'], '.php');
+$page = $_GET['page'] ?? 'home';
 
 // Meta tags por defecto si no se especifican
 $page_title = $page_title ?? $site_logo . ' | Ropa Deportiva Premium';
@@ -55,6 +55,12 @@ $og_image = $og_image ?? 'https://images.unsplash.com/photo-1556821840-3a63f9560
             --neon-hover: <?php echo $primary_color; ?>; /* Simplificación por ahora */
         }
     </style>
+    <script>
+        window.HYPE_CONFIG = {
+            currency: "<?php echo isset($currency) ? $currency : '$'; ?>",
+            siteName: "<?php echo isset($site_name) ? $site_name : 'HYPE'; ?>"
+        };
+    </script>
 </head>
 
 <body>
@@ -64,9 +70,9 @@ $og_image = $og_image ?? 'https://images.unsplash.com/photo-1556821840-3a63f9560
             <a href="index.php" class="logo"><?php echo htmlspecialchars($site_logo); ?><span class="text-neon">.</span></a>
             <nav class="nav">
                 <ul class="nav__list">
-                    <li><a href="index.php" class="nav__link <?php echo $current_page === 'index' ? 'active' : ''; ?>">Home</a></li>
-                    <li><a href="shop.php" class="nav__link <?php echo $current_page === 'shop' ? 'active' : ''; ?>">Catálogo</a></li>
-                    <li><a href="index.php#collections" class="nav__link">Colecciones</a></li>
+                    <li><a href="index.php?page=home" class="nav__link <?php echo $page === 'home' ? 'active' : ''; ?>">Home</a></li>
+                    <li><a href="index.php?page=shop" class="nav__link <?php echo $page === 'shop' ? 'active' : ''; ?>">Catálogo</a></li>
+                    <li><a href="index.php?page=home#collections" class="nav__link">Colecciones</a></li>
                 </ul>
             </nav>
             <div class="header__actions">

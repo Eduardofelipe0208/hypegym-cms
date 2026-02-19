@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Cargar datos del servidor
     fetchData();
 
-    // Actualizar cada 60 segundos (Opcional)
-    // setInterval(fetchData, 60000);
+    // Actualizar cada 60 segundos
+    setInterval(fetchData, 60000);
 });
 
 async function fetchData() {
@@ -48,6 +48,7 @@ function renderRecentOrders(orders) {
 
         if (order.status === 'completed') { statusClass = 'status-completed'; statusText = 'Completado'; }
         if (order.status === 'rejected') { statusClass = 'status-failed'; statusText = 'Rechazado'; }
+        if (order.status === 'cancelled') { statusClass = 'status-failed'; statusText = 'Cancelado'; }
 
         return `
             <tr>
@@ -62,7 +63,6 @@ function renderRecentOrders(orders) {
 }
 
 function updateKPIs(data) {
-    // Helper para formatear moneda
     const formatCurrency = (amount, currency = 'USD') => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -77,10 +77,9 @@ function updateKPIs(data) {
         }).format(amount);
     };
 
-    // Actualizar DOM
     document.getElementById('total-orders').textContent = data.total_orders;
-    document.getElementById('income-usd').textContent = formatCurrency(data.income_usd);
-    document.getElementById('income-bs').textContent = formatBs(data.income_bs);
+    document.getElementById('income-usd').textContent = formatCurrency(data.income_usd || 0);
+    document.getElementById('income-bs').textContent = formatBs(data.income_bs || 0);
     document.getElementById('pending-orders').textContent = data.pending_orders;
 }
 
@@ -94,14 +93,15 @@ function renderSalesChart(data) {
     if (salesChartInstance) salesChartInstance.destroy();
 
     const labels = data.map(item => {
-        const date = new Date(item.date); // Ajustar si es necesario zona horaria
+        // Fix for timezone issues, assumes usage of local browser time
+        const dateParts = item.date.split('-');
+        const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
         return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' });
     });
     const values = data.map(item => item.total);
 
-    // Gradiente para el gráfico
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(214, 254, 0, 0.5)'); // Color primario con opacidad
+    gradient.addColorStop(0, 'rgba(214, 254, 0, 0.5)');
     gradient.addColorStop(1, 'rgba(214, 254, 0, 0)');
 
     salesChartInstance = new Chart(ctx, {
@@ -132,20 +132,23 @@ function renderSalesChart(data) {
                     titleColor: '#fff',
                     bodyColor: '#D6FE00',
                     borderColor: '#2A2B2E',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    displayColors: false,
+                    callbacks: {
+                        label: function (context) {
+                            return '$' + context.parsed.y.toFixed(2);
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: {
-                        color: '#2A2B2E'
-                    }
+                    grid: { color: '#2A2B2E' },
+                    ticks: { callback: (value) => '$' + value }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    }
+                    grid: { display: false }
                 }
             }
         }
@@ -157,7 +160,6 @@ function renderMonthlyChart(data) {
 
     if (monthlyChartInstance) monthlyChartInstance.destroy();
 
-    // Mapeo de meses (2026-01 -> Ene)
     const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
     const labels = data.map(item => {
@@ -182,12 +184,20 @@ function renderMonthlyChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return '$' + context.parsed.y.toFixed(2);
+                        }
+                    }
+                }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: { color: '#2A2B2E' }
+                    grid: { color: '#2A2B2E' },
+                    ticks: { callback: (value) => '$' + value }
                 },
                 x: {
                     grid: { display: false }
@@ -202,8 +212,10 @@ function renderTopProductsChart(data) {
 
     if (productsChartInstance) productsChartInstance.destroy();
 
-    // Si no hay datos, mostrar mensaje o chart vacío
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+        // Optional: show placeholder
+        return;
+    }
 
     const labels = data.map(item => item.name);
     const values = data.map(item => item.total_sold);
@@ -234,7 +246,8 @@ function renderTopProductsChart(data) {
                     labels: {
                         boxWidth: 12,
                         padding: 20,
-                        color: '#fff'
+                        color: '#fff',
+                        font: { size: 10 }
                     }
                 }
             },

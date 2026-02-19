@@ -6,6 +6,7 @@
 
 session_start();
 require_once '../../includes/db.php';
+require_once '../../includes/image_helper.php';
 require_once '../includes/logger.php';
 
 // Validar seguridad
@@ -29,33 +30,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
 
     try {
         if ($action === 'create') {
-            // Recoger datos
-            $name = $_POST['name'];
-            $description = $_POST['description'];
-            $price = $_POST['price'];
-            $category_id = $_POST['category_id'];
-            $stock = $_POST['stock'];
-            $sizes = $_POST['sizes'] ?? 'S,M,L'; // Default sizes
+            // Recoger y validar datos
+            $name = strip_tags(trim($_POST['name'] ?? ''));
+            $description = strip_tags(trim($_POST['description'] ?? ''));
+            $price = filter_var($_POST['price'], FILTER_VALIDATE_FLOAT);
+            $category_id = filter_var($_POST['category_id'], FILTER_VALIDATE_INT);
+            $stock = filter_var($_POST['stock'], FILTER_VALIDATE_INT);
+            $sizes = strip_tags(trim($_POST['sizes'] ?? 'S,M,L'));
             $is_featured = isset($_POST['is_featured']) ? 1 : 0;
             $imageUrl = '';
 
-            // Manejo de Imagen
+            if (empty($name) || !$price || !$category_id || $stock === false) {
+                throw new Exception("Datos inválidos. Revisa precios y stock.");
+            }
+
+            // Manejo de Imagen Seguro
             if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-                $fileName = time() . '_' . basename($_FILES['image']['name']);
-                $targetFile = $targetDir . $fileName;
+                // Verificar tipo MIME real
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($_FILES['image']['tmp_name']);
                 
-                // Validar extensión
-                $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-                $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-                
-                if (in_array($imageFileType, $allowed)) {
-                    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                        $imageUrl = $dbDir . $fileName;
-                    } else {
-                        throw new Exception("Error al mover la imagen subida.");
-                    }
-                } else {
-                    throw new Exception("Formato de imagen no permitido.");
+                $allowedMimes = [
+                    'image/jpeg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif'
+                ];
+
+                if (!array_key_exists($mimeType, $allowedMimes)) {
+                    throw new Exception("Formato de imagen inválido (MIME).");
+                }
+
+                // Generar nombre base seguro
+                $fileNameBase = bin2hex(random_bytes(16));
+                $targetFile = $targetDir . $fileNameBase . '.tmp'; // Helper le pondrá .webp
+
+                try {
+                    // Optimizar y convertir
+                    $finalFileName = processImage(
+                        $_FILES['image'], 
+                        $targetFile
+                    );
+                    $imageUrl = $dbDir . $finalFileName;
+                    
+                    // Limpia archivo temporal si quedó (processImage usa GD desde memoria)
+                } catch (Exception $e) {
+                    throw new Exception("Error al procesar imagen: " . $e->getMessage());
                 }
             }
 
@@ -73,34 +93,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
             exit;
 
         } elseif ($action === 'update') {
-            $id = $_POST['id'];
-            $name = $_POST['name'];
-            $description = $_POST['description'];
-            $price = $_POST['price'];
-            $category_id = $_POST['category_id'];
-            $stock = $_POST['stock'];
-            $sizes = $_POST['sizes'] ?? 'S,M,L';
+            $id = filter_var($_POST['id'], FILTER_VALIDATE_INT);
+            $name = strip_tags(trim($_POST['name'] ?? ''));
+            $description = strip_tags(trim($_POST['description'] ?? ''));
+            $price = filter_var($_POST['price'], FILTER_VALIDATE_FLOAT);
+            $category_id = filter_var($_POST['category_id'], FILTER_VALIDATE_INT);
+            $stock = filter_var($_POST['stock'], FILTER_VALIDATE_INT);
+            $sizes = strip_tags(trim($_POST['sizes'] ?? 'S,M,L'));
             $is_featured = isset($_POST['is_featured']) ? 1 : 0;
             
+            if (!$id || empty($name) || !$price || !$category_id || $stock === false) {
+                 throw new Exception("Datos inválidos en actualización.");
+            }
+
             // Mantener imagen actual por defecto
             $imageUrl = $_POST['current_image'];
 
             // Si suben nueva imagen
             if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-                $fileName = time() . '_' . basename($_FILES['image']['name']);
-                $targetFile = $targetDir . $fileName;
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($_FILES['image']['tmp_name']);
                 
-                $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-                $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+                $allowedMimes = [
+                    'image/jpeg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif'
+                ];
+
+                if (!array_key_exists($mimeType, $allowedMimes)) {
+                    throw new Exception("Formato de imagen inválido (MIME).");
+                }
+
+                $fileNameBase = bin2hex(random_bytes(16));
+                $targetFile = $targetDir . $fileNameBase . '.tmp';
                 
-                if (in_array($imageFileType, $allowed)) {
-                    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                        $imageUrl = $dbDir . $fileName; // Actualizar con nueva ruta
-                    } else {
-                        throw new Exception("Error al mover la nueva imagen.");
-                    }
-                } else {
-                    throw new Exception("Formato de imagen no permitido.");
+                try {
+                    $finalFileName = processImage(
+                        $_FILES['image'], 
+                        $targetFile
+                    );
+                    $imageUrl = $dbDir . $finalFileName;
+                } catch (Exception $e) {
+                     throw new Exception("Error al procesar nueva imagen: " . $e->getMessage());
                 }
             }
 

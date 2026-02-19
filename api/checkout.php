@@ -17,8 +17,31 @@ try {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if (!$input) {
-        throw new Exception('Datos inválidos');
+        throw new Exception('JSON inválido');
     }
+
+    // Validar Campos Requeridos
+    $required = ['cart', 'name', 'phone', 'address', 'payment_method_name'];
+    foreach ($required as $field) {
+        if (empty($input[$field])) {
+            throw new Exception("Campo faltante: $field");
+        }
+    }
+
+    // Validar Referencia (Opcional si es Efectivo)
+    $isCash = stripos($input['payment_method_name'], 'efectivo') !== false;
+    if (!$isCash && empty($input['reference'])) {
+        throw new Exception("Campo faltante: reference");
+    }
+
+    // Sanitizar Strings
+    $name = strip_tags(trim($input['name']));
+    $phone = strip_tags(trim($input['phone']));
+    $address = strip_tags(trim($input['address']));
+    $reference = strip_tags(trim($input['reference']));
+    $notes = strip_tags(trim($input['notes'] ?? ''));
+    $paymentMethod = strip_tags(trim($input['payment_method_name']));
+    $email = filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL) ?: 'cliente@hypesportswear.com';
 
     $db = getDB();
     
@@ -29,48 +52,57 @@ try {
     $tasaQuery = dbQueryOne("SELECT value FROM settings WHERE `key` = 'tasa_bcv'");
     $exchangeRate = $tasaQuery ? floatval($tasaQuery['value']) : 36.50;
 
-    // 3. Calcular Montos
+    // 3. Calcular Montos y Validar Carrito
     $calculatedTotalUSD = 0;
     
+    if (!is_array($input['cart']) || empty($input['cart'])) {
+        throw new Exception("El carrito está vacío");
+    }
+
     foreach ($input['cart'] as $item) {
-        $product = dbQueryOne("SELECT price, stock FROM products WHERE id = ?", [$item['id']]);
-        if (!$product) throw new Exception("Producto ID {$item['id']} no encontrado");
+        $imgId = filter_var($item['id'], FILTER_VALIDATE_INT);
+        $qty = filter_var($item['quantity'], FILTER_VALIDATE_INT);
+
+        if (!$imgId || !$qty || $qty < 1) {
+            throw new Exception("Item inválido en carrito");
+        }
+
+        $product = dbQueryOne("SELECT price, stock FROM products WHERE id = ?", [$imgId]);
+        if (!$product) throw new Exception("Producto ID {$imgId} no encontrado");
         
-        $calculatedTotalUSD += floatval($product['price']) * intval($item['quantity']);
+        $calculatedTotalUSD += floatval($product['price']) * $qty;
     }
 
     $totalBS = $calculatedTotalUSD * $exchangeRate;
 
     // Ejecutar Insert Orden
-    // Asumimos que 'customer_email' no es crítico para este flujo manual, usamos un placeholder o input opcional
-    $email = $input['email'] ?? 'cliente@hypesportswear.com'; 
-
     $sqlOrder = "INSERT INTO orders (customer_name, customer_email, customer_phone, customer_address, total_amount, total_amount_bs, status, payment_reference, exchange_rate, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)";
 
     $orderId = dbExecute($sqlOrder, [
-        $input['name'],
+        $name,
         $email,
-        $input['phone'],
-        $input['address'],
+        $phone,
+        $address,
         $calculatedTotalUSD,
         $totalBS, // Nuevo campo
-        $input['reference'],
+        $reference,
         $exchangeRate,
-        $input['payment_method_name'], 
-        $input['notes'] ?? ''
+        $paymentMethod,
+        $notes
     ]);
 
     if (!$orderId) throw new Exception("Error al crear la orden");
 
     // 3. Insertar Items de Orden y Actualizar Stock
-    $sqlItem = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+    $sqlItem = "INSERT INTO order_items (order_id, product_id, product_name, size, quantity, price) VALUES (?, ?, ?, ?, ?, ?)";
     $sqlStock = "UPDATE products SET stock = stock - ? WHERE id = ?";
 
     foreach ($input['cart'] as $item) {
-        $product = dbQueryOne("SELECT price FROM products WHERE id = ?", [$item['id']]);
+        $product = dbQueryOne("SELECT name, price FROM products WHERE id = ?", [$item['id']]);
         
         // Insert Item
-        dbExecute($sqlItem, [$orderId, $item['id'], $item['quantity'], $product['price']]);
+        $size = strip_tags($item['size'] ?? ''); // Sanitize size
+        dbExecute($sqlItem, [$orderId, $item['id'], $product['name'], $size, $item['quantity'], $product['price']]);
         
         // Update Stock
         dbExecute($sqlStock, [$item['quantity'], $item['id']]);

@@ -30,7 +30,9 @@ try {
     $sql = "
         SELECT 
             o.*, 
-            (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as items_count
+            o.payment_method as payment_method_name,
+            (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as items_count,
+            (SELECT GROUP_CONCAT(CONCAT(product_name, ' (', quantity, ')') SEPARATOR ', ') FROM order_items WHERE order_id = o.id) as product_summary
         FROM orders o 
         WHERE 1=1
     ";
@@ -53,10 +55,14 @@ try {
         $params[] = $dateEnd;
     }
 
-    // Filtro por Método de Pago
+    // Filtro por Método de Pago (ID -> Nombre)
     if (!empty($method)) {
-        $sql .= " AND o.payment_method_id = ?";
-        $params[] = $method;
+        // Buscar nombre del método por ID
+        $pm = dbQueryOne("SELECT name FROM payment_methods WHERE id = ?", [$method]);
+        if ($pm) {
+            $sql .= " AND o.payment_method = ?";
+            $params[] = $pm['name'];
+        }
     }
 
     // Filtro por Monto
@@ -88,9 +94,10 @@ try {
     $formattedOrders = array_map(function($order) {
         $statusLabels = [
             'pending' => 'Pendiente',
-            'paid' => 'Pagado',
-            'shipped' => 'Enviado',
-            'rejected' => 'Rechazado'
+            'completed' => 'Aprobado', // Venta concretada
+            'cancelled' => 'Cancelado',
+            'shipped' => 'Enviado', // Legacy support
+            'rejected' => 'Rechazado' // Legacy support
         ];
         
         $order['status_label'] = $statusLabels[$order['status']] ?? ucfirst($order['status']);

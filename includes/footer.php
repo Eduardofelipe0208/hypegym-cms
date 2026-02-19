@@ -19,7 +19,7 @@
                 </div>
             </div>
             <div class="footer__bottom">
-                <p>&copy; 2026 HYPE Sportswear. All rights reserved.</p>
+                <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($site_name ?? 'HYPE Sportswear'); ?>. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -81,7 +81,7 @@
                         <!-- Aquí van los datos bancarios -->
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="referenceContainer">
                         <label>Referencia de Pago / Comprobante</label>
                         <input type="text" id="paymentReference" placeholder="Últimos 4 o 6 dígitos" required>
                     </div>

@@ -32,34 +32,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // 1.5 Manejo de subida de imagen (Banner)
-        if (isset($_FILES['hero_image_file']) && $_FILES['hero_image_file']['error'] === 0) {
-            $uploadDir = '../../img/uploads/';
-            if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
+        // 1.5 Manejo de subida de imagen (Banner) - MOVIDO A admin/sections.php
 
-            $fileName = 'hero_' . time() . '_' . basename($_FILES['hero_image_file']['name']);
-            $targetPath = $uploadDir . $fileName;
-
-            if (move_uploaded_file($_FILES['hero_image_file']['tmp_name'], $targetPath)) {
-                // Guardar ruta relativa en DB
-                $dbPath = 'img/uploads/' . $fileName;
+        // 1.8 Guardar Métodos de Pago
+        if (isset($_POST['payment_methods']) && is_array($_POST['payment_methods'])) {
+            $sqlUpdatePM = "UPDATE payment_methods SET name = ?, instructions = ?, is_active = ? WHERE id = ?";
+            
+            foreach ($_POST['payment_methods'] as $id => $pmData) {
+                // Checkbox handling: if not checked, it's not in POST usually, but here we iterate keys
+                // We trust the hidden ID or the key. 
+                $name = strip_tags(trim($pmData['name']));
+                $instr = strip_tags(trim($pmData['instructions']));
+                $isActive = isset($pmData['is_active']) ? 1 : 0;
                 
-                // Actualizar o insertar
-                $exists = dbQueryOne("SELECT id FROM settings WHERE `key` = 'hero_image'");
-                if ($exists) {
-                    dbExecute("UPDATE settings SET `value` = ? WHERE `key` = 'hero_image'", [$dbPath]);
-                } else {
-                    dbExecute("INSERT INTO settings (`key`, `value`) VALUES ('hero_image', ?)", [$dbPath]);
-                }
+                dbExecute($sqlUpdatePM, [$name, $instr, $isActive, $id]);
             }
         }
 
         // 2. Guardar todas las configuraciones enviadas
         $allowedKeys = [
             'site_logo_text', 
+            'site_name',
+            'currency_symbol',
             'primary_color', 
-            'hero_title', 
-            'hero_subtitle',
-            // 'hero_image' se maneja arriba
+            'primary_color', 
+            // 'hero_title',  <-- Movido a sections
+            // 'hero_subtitle', <-- Movido a sections
             'whatsapp_number',
             'social_instagram',
             'social_tiktok',

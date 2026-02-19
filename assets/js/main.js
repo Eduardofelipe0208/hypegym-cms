@@ -1,7 +1,7 @@
 // --- CONFIGURACIÓN ---
 const CONFIG = {
     whatsappNumber: "584120936783", // Tu número de WhatsApp
-    currency: "$",
+    currency: (window.HYPE_CONFIG && window.HYPE_CONFIG.currency) || "$",
     manualRate: 450.50 // TASA DE RESPALDO (Por si falla la API)
 };
 
@@ -114,14 +114,28 @@ function updateCheckoutTotals() {
 window.updatePaymentInstructions = function () {
     const methodId = document.getElementById('paymentMethod').value;
     const container = document.getElementById('paymentInstructions');
+    const refContainer = document.getElementById('referenceContainer');
+    const refInput = document.getElementById('paymentReference');
 
     const method = paymentMethods.find(m => m.id == methodId);
 
+    // 1. Mostrar instrucciones
     if (method && method.instructions) {
         container.style.display = 'block';
         container.innerHTML = `<strong>Datos para el pago:</strong><br>${method.instructions.replace(/\n/g, '<br>')}`;
     } else {
         container.style.display = 'none';
+    }
+
+    // 2. Ocultar referencia si es Efectivo
+    if (method && method.name.toLowerCase().includes('efectivo')) {
+        refContainer.style.display = 'none';
+        refInput.removeAttribute('required');
+        refInput.value = 'Efectivo'; // Valor por defecto para pasar validación simple
+    } else {
+        refContainer.style.display = 'block';
+        refInput.setAttribute('required', 'true');
+        if (refInput.value === 'Efectivo') refInput.value = '';
     }
 }
 
@@ -163,7 +177,7 @@ async function submitOrder(e) {
         payment_method_id: methodId,
         payment_method_name: methodName,
         reference,
-        cart: cart.map(item => ({ id: item.id, quantity: item.quantity }))
+        cart: cart.map(item => ({ id: item.id, quantity: item.quantity, size: item.size }))
     };
 
     try {
@@ -299,7 +313,7 @@ function renderFeaturedProducts() {
             <article class="product-card${stockClass}">
                 <div class="product-image">
                     ${badge}
-                    <a href="product.php?id=${p.id}">
+                    <a href="index.php?page=product&id=${p.id}">
                         <img src="${p.image}" alt="${p.name}">
                     </a>
                 </div>
@@ -310,7 +324,7 @@ function renderFeaturedProducts() {
                         <select id="size-${p.id}" class="size-selector"${btnDisabled}>
                             ${sizesOptions}
                         </select>
-                        <button class="btn btn--primary btn--icon add-to-cart" data-id="${p.id}"${btnDisabled}>
+                        <button class="btn btn--primary btn--icon" onclick="addToCart('${p.id}')"${btnDisabled}>
                             <i class="ph ph-plus"></i> ${btnText}
                         </button>
                     </div>
@@ -360,7 +374,7 @@ function renderShop(category = 'all', searchQuery = '') {
         els.shopContainer.innerHTML += `
             <article class="product-card${stockClass}">
                 <div class="product-image">
-                    <a href="product.php?id=${p.id}">${badge}<img src="${p.image}" loading="lazy"></a>
+                    <a href="index.php?page=product&id=${p.id}">${badge}<img src="${p.image}" loading="lazy"></a>
                 </div>
                 <div class="product-info">
                     <h4>${p.name}</h4><p class="price">$${p.price.toFixed(2)}</p>
@@ -393,7 +407,7 @@ function renderProductDetail() {
     const btnText = p.inStock ? 'AGREGAR AL CARRITO' : 'PRODUCTO AGOTADO';
 
     container.innerHTML = `
-        <a href="shop.php" class="back-link">← Volver</a>
+        <a href="index.php?page=shop" class="back-link">← Volver</a>
         <div class="product-detail-grid">
             <div class="pd-image"><img src="${p.image}"></div>
             <div class="pd-info">
@@ -452,15 +466,20 @@ function initShopRender() {
     const categoryParam = urlParams.get('category');
 
     if (categoryParam) {
-        // Intentar activar el botón correspondiente
+        // Activar visualmente el botón correspondiente
         const btn = document.querySelector(`.filter-btn[data-category="${categoryParam}"]`);
         if (btn) {
-            btn.click();
+            // Remover activo de todos
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            // Activar este
+            btn.classList.add('active');
+            // Renderizar sin click (evita loop)
+            renderShop(categoryParam);
         } else {
             renderShop(categoryParam);
         }
     } else {
-
+        renderShop('all');
     }
 }
 
@@ -499,8 +518,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Botones estáticos (Home)
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', () => window.addToCart(btn.dataset.id));
-    });
+    // Botones estáticos (Home) - YA NO SON NECESARIOS PORQUE USAMOS ONCLICK
+    // document.querySelectorAll('.add-to-cart').forEach(btn => {
+    //    btn.addEventListener('click', () => window.addToCart(btn.dataset.id));
+    // });
 });

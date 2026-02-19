@@ -45,6 +45,12 @@ $primary_color = function_exists('getSetting') ? getSetting('primary_color', '#D
             </a>
         </li>
         <li>
+            <a href="sections.php" class="nav-item <?php echo ($current_page == 'sections.php') ? 'active' : ''; ?>">
+                <i class="ph ph-article"></i> <span>Secciones</span>
+            </a>
+        </li>
+        <?php if (isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'superadmin'): ?>
+        <li>
             <a href="logs.php" class="nav-item <?php echo ($current_page == 'logs.php') ? 'active' : ''; ?>">
                 <i class="ph ph-list-dashes"></i> <span>Logs</span>
             </a>
@@ -54,6 +60,7 @@ $primary_color = function_exists('getSetting') ? getSetting('primary_color', '#D
                 <i class="ph ph-database"></i> <span>Base de Datos</span>
             </a>
         </li>
+        <?php endif; ?>
     </ul>
     <div class="sidebar-footer">
         <a href="logout.php" class="nav-item" style="color: #ff6b6b;">
